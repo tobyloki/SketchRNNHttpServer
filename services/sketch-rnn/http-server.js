@@ -29,7 +29,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 80;
 // Configure express body-parser as middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
