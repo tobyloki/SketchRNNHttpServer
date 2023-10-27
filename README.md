@@ -3,7 +3,11 @@
 ```bash
 docker run -it -d -p 80:80 --name sketchrnn-http-server node:latest
 
-docker exec -it {containerId} /bin/sh
+docker exec -it sketchrnn-http-server /bin/sh
+
+bash
+
+cd
 
 apt-get update -y
 
