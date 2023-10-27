@@ -18,7 +18,7 @@ npm i -g pnpm
 ```bash
 git clone https://github.com/tobyloki/SketchRNNHttpServer.git
 
-cd services/sketch-rnn
+cd SketchRNNHttpServer/services/sketch-rnn
 
 pnpm i
 
