@@ -60,11 +60,14 @@ var simple_predict = require('./lib/simple_predict');
  */
 app.post('/simple_predict', function(req, res) {
 
+    console.log("----- simple_predict POST request received ...");
+
     // Load simple_predict.js module
     //var simple_predict = require('./lib/simple_predict');
 
     // Get strokes from the POST request's parameters
     var strokes = req.body.strokes;
+    removeDuplicates(strokes);
 
     // If strokes are provided on the request,
     // set them as input strokes for simple_predict
@@ -79,6 +82,8 @@ app.post('/simple_predict', function(req, res) {
     // Get the predicted strokes
     var predicted_strokes = simple_predict.output_strokes();
 
+    removeDuplicates(predicted_strokes);
+
     // Return the predicted strokes in the response
     res.json(predicted_strokes);
 
@@ -90,11 +95,15 @@ app.post('/simple_predict', function(req, res) {
  */
 app.post('/simple_predict_absolute', function(req, res) {
 
+    console.log("----- simple_predict_absolute POST request received ...");
+
     // Load simple_predict.js module
     //var simple_predict = require('./lib/simple_predict');
 
     // Get strokes from the POST request's parameters
     var strokes = req.body.strokes;
+    removeDuplicates(strokes);
+
     var model = req.body.model;
     if (model) {
         console.log("Requesting model " + model);
@@ -106,7 +115,12 @@ app.post('/simple_predict_absolute', function(req, res) {
     // If strokes are provided on the request,
     // set them as input strokes for simple_predict
     if (strokes) {
-        var strokes = JSON.parse(strokes);
+        // Test if `strokes` is a string
+        if (typeof strokes === 'string' || strokes instanceof String) {
+            // Parse the string into a JSON array
+            strokes = JSON.parse(strokes);
+        }
+        //var strokes = JSON.parse(strokes); // Aleady in JSON Array format
         simple_predict.set_absolute_strokes(strokes)
     }
 
@@ -115,6 +129,8 @@ app.post('/simple_predict_absolute', function(req, res) {
 
     // Get the predicted strokes
     var predicted_strokes = simple_predict.output_strokes_absolute();
+
+    removeDuplicates(predicted_strokes);
 
     // Return the predicted strokes in the response
     res.json(predicted_strokes);
@@ -129,11 +145,15 @@ app.post('/simple_predict_absolute', function(req, res) {
  */
 app.get('/simple_predict_absolute', function(req, res) {
 
+    console.log("----- simple_predict_absolute GET request received ...");
+
     // Load simple_predict.js module
     //var simple_predict = require('./lib/simple_predict');
 
     // Get strokes from the POST request's parameters
     var strokes = req.param('strokes');
+    removeDuplicates(strokes);
+
     var model = req.param('model');
     if (model) {
         console.log("Requesting model " + model);
@@ -155,6 +175,11 @@ app.get('/simple_predict_absolute', function(req, res) {
     // Get the predicted strokes
     var predicted_strokes = simple_predict.output_strokes_absolute();
 
+    removeDuplicates(predicted_strokes);
+
+    // Log predicted strokes
+    console.log(predicted_strokes);
+
     // Return the predicted strokes in the response
     res.json(predicted_strokes);
 
@@ -167,11 +192,14 @@ app.get('/simple_predict_absolute', function(req, res) {
  */
 app.get('/simple_predict', function(req, res) {
 
+    console.log("----- simple_predict GET request received ...");
+
     // Load simple_predict.js module
     //var simple_predict = require('./lib/simple_predict');
 
     // Get strokes from the GET request's parameters
     var strokes = req.param('strokes');
+    removeDuplicates(strokes);
 
     // If strokes are provided on the request,
     // set them as input strokes for simple_predict
@@ -186,9 +214,38 @@ app.get('/simple_predict', function(req, res) {
     // Get the predicted strokes
     var predicted_strokes = simple_predict.output_strokes();
 
+    removeDuplicates(predicted_strokes);
+
     // Return the predicted strokes in the response
     res.json(predicted_strokes);
 });
+
+/*
+ *  Removes duplicates from a strokes array (in place) 
+ *   Works on relative or absolute strokes
+ */
+function removeDuplicates(strokes) {
+    // Only proceed if strokes is an array
+    if(!strokes) return;
+    if( !(strokes instanceof Array) ) return;
+
+    // Remove leading zero stroke
+    if(strokes[0][0] === 0 && strokes[0][1] === 0) {
+        strokes.splice(0, 1);
+    }
+
+    // Remove duplicates
+    for(var i = 1; i < strokes.length; i++) {
+        if(strokes[i][0] === strokes[i-1][0] && strokes[i][1] === strokes[i-1][1]) {
+            strokes.splice(i, 1);
+            i--;
+        }
+        else if(strokes[i][0] === 0 && strokes[i][1] === 0) {
+            strokes.splice(i, 1);
+            i--;
+        }
+    }
+}
 
 /**
  * Start the HTTP server.

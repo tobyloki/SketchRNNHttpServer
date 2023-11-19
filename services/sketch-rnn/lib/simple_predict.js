@@ -66,8 +66,14 @@ module.exports.output_strokes = function() {
 
 module.exports.output_strokes_absolute = function() {
 
+    console.log("Outputting absolute strokes ... ");
+
+    console.log(" . Relative strokes: ");
+    console.log(predicted_strokes);
+
     let x = absolute_x;
     let y = absolute_y;
+    console.log(` . Starting at (${x}, ${y})`);
 
     let absolute_strokes = [
         [x, y, 1, 0, 0]
@@ -87,10 +93,14 @@ module.exports.output_strokes_absolute = function() {
         y += dy;
     }
 
+    console.log(" . Absolute strokes: ");
+    console.log(absolute_strokes);
+
     return absolute_strokes
 }
 
 // default sample oval
+/*
 var strokes = [
     [-4, 0, 1, 0, 0],
     [-15, 9, 1, 0, 0],
@@ -106,13 +116,16 @@ var strokes = [
     [-13, -7, 1, 0, 0],
     [-14, -1, 0, 1, 0]
 ];
+*/
+//var strokes = [[0, 0, 1, 0, 0]];
+var strokes = [];
 
 // set relative stroke from relative strokes
 module.exports.set_strokes = function(s) {
     strokes = s;
 }
 
-let absolute_x, absolute_y;
+let absolute_x = 0.0, absolute_y = 0.0;
 
 // set relative strokes from an absolute strokes
 module.exports.set_absolute_strokes = function(s) {
@@ -123,6 +136,11 @@ module.exports.set_absolute_strokes = function(s) {
 }
 
 var absolute2relative = function(strokes) {
+
+    console.log("Converting relative strokes to absolute strokes ... ");
+
+    console.log(" . Absolute strokes: ");
+    console.log(strokes);
 
     var rStrokes = [];
     let prev_x, prev_y;
@@ -135,6 +153,8 @@ var absolute2relative = function(strokes) {
         let p2 = strokes[i][3];
         let p3 = strokes[i][4];
 
+        //console.log(` . Converting ${strokes[i]} to relative ${[x - prev_x, y - prev_y, p1, p2, p3]}`);
+
         if (i > 0) {
             rStrokes.push([x - prev_x, y - prev_y, p1, p2, p3]);
         }
@@ -143,13 +163,19 @@ var absolute2relative = function(strokes) {
         prev_y = y;
     }
 
+    console.log(" . Relative strokes: ");
+    console.log(rStrokes);
+
     // return strokes and last x, y
     return [rStrokes, prev_x, prev_y];
 }
 
 module.exports.predict = function() {
 
+    console.log("Predicting ... ");
+
     var restart = function() {
+        console.log("Restarting ... ");
         model_state = model.copy_state(model_state_orig);
         // nono: defines model_x and model_y with the end point of the given drawing "strokes"
         model_x = 0; //end_x;
@@ -170,6 +196,8 @@ module.exports.predict = function() {
 
     var getModelStrokes = function() {
 
+        console.log("Getting model strokes ... ");
+
         var ended = false;
         var prediction = [];
 
@@ -181,6 +209,9 @@ module.exports.predict = function() {
 
                 model_pdf = model.get_pdf(model_state);
                 [model_dx, model_dy, model_pen_down, model_pen_up, model_pen_end] = model.sample(model_pdf, temperature);
+
+                //console.log(" . New stroke:")
+                //console.log(`   [${model_dx}, ${model_dy}, ${model_pen_down}, ${model_pen_up}, ${model_pen_end}]`);
 
                 // nono: store sketch values on a flat array of floats
                 // nono: dx, dy, p1, p2, p3
@@ -202,17 +233,22 @@ module.exports.predict = function() {
             }
         }
 
+        console.log(" . Predicted strokes: ");
+        console.log(prediction);
+
         return prediction;
 
     };
 
     var setup = function() {
+        console.log("Running setup ...");
         sk.set_init_model(model_raw_data);
         model_data = sk.get_model_data();
         model = new sk.SketchRNN(model_data);
         model.set_pixel_factor(screen_scale_factor);
         encode_strokes();
         restart();
+        console.log("Setup complete.");
     }
 
     setup();
