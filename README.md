@@ -1,4 +1,17 @@
 # SketchRNN HTTP Web Server Service
+
+Autocomplete sketches provided a model name & a list of drawn points via SketchRNN. It'll automatically draw sketches relative to the input data (i.e. no coordinate transformations required). Modified from the original example at https://github.com/MindExMachina/smartgeometry.
+
+### Input data format
+- Model name
+  - Available models to choose from are listed here: https://github.com/tobyloki/SketchRNNHttpServer/tree/master/services/sketch-rnn/lib/models
+- List of points:
+  - Each point contains:
+    - (x, y) coordinate
+    - (pen down, pen up, pen done) 1 hot encoding
+    - Format: (x, y, up, down, done)
+      - e.g. (20.0, 30.4, 1, 0, 0)
+
 ## Run from inside Docker container
 ```bash
 docker run -it -d -p 80:80 --name sketchrnn-http-server node:latest
